@@ -40,7 +40,7 @@ class GameField(object):
         self.width = width
         self.win_value = win
         self.score = 0
-        self.highscore = 0
+        #self.highscore = 0
         self.reset()
 
     # 随机生成一个2或4
@@ -55,8 +55,8 @@ class GameField(object):
 
     # 重置棋盘
     def reset(self):
-        if self.score > self.highscore:
-            self.highscore = self.score
+        # if self.score > self.highscore:
+        #     self.highscore = self.score
         self.score = 0
         self.field = [[0 for i in range(self.width)] for j in range(self.height)]
         self.spawn()
@@ -74,10 +74,11 @@ class GameField(object):
             def merge(row):  # 对邻近元素进行合并
                 pair = False
                 new_row = []
-                for i in  range(len(row)):
+                for i in range(len(row)):
                     if pair:
                         new_row.append(row[i] * 2)
-                        self.score += 2 * row[i]
+                        if (self.score < 2 * row[i]):
+                            self.score = 2 * row[i]
                         pair = False
                     else:
                         if i + 1 < len(row) and row[i] == row[i + 1]:
@@ -141,11 +142,12 @@ class GameField(object):
         help_string2 = '     (R)Restart (Q)Exit'
         gameover_string = '           GAME OVER'
         win_string = '          YOU WIN!'
+
         def cast(string):
             screen.addstr(string + '\n')
 
         def draw_hor_separator():
-            line = '+' + ('+------' * self.width + '+')[1:]
+            line = '+------' * self.width + '+'
             separator = defaultdict(lambda: line)
             if not hasattr(draw_hor_separator, "counter"):
                 draw_hor_separator.counter = 0
@@ -157,8 +159,8 @@ class GameField(object):
 
         screen.clear()
         cast('SCORE: ' + str(self.score))
-        if 0 != self.highscore:
-            cast('HIGHSCORE: ' + str(self.highscore))
+        # if 0 != self.highscore:
+        #     cast('HIGHSCORE: ' + str(self.highscore))
         for row in self.field:
             draw_hor_separator()
             draw_row(row)
@@ -171,6 +173,7 @@ class GameField(object):
             else:
                 cast(help_string1)
         cast(help_string2)
+
 
 def main(stdscr):
     def init():
@@ -212,13 +215,14 @@ def main(stdscr):
 
     curses.use_default_colors()
 
-    # 设置终结状态最大数值为 32
-    game_field = GameField(win=32)
+    # 设置终结状态最大数值为 2048
+    game_field = GameField(win=2048)
 
     state = 'Init'
 
     # 状态机开始循环
     while state != 'Exit':
         state = state_actions[state]()
+
 
 curses.wrapper(main)
